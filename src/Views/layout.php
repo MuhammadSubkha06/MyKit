@@ -74,7 +74,7 @@ function asset($path) { echo '/assets/' . ltrim($path, '/'); }
                 <span class="ms-2">— Pendamping siklus menstruasimu</span>
             </div>
             <div class="col-md-4 text-center mb-2 mb-md-0">
-                <small>© 2025 MyKit. Dibuat dengan <i class="bi bi-heart-fill" style="color:var(--pk)"></i> untuk wanita Indonesia.</small>
+                <small>© 2026 MyKit. Dibuat dengan <i class="bi bi-heart-fill" style="color:var(--pk)"></i> untuk wanita Indonesia.</small>
             </div>
             <div class="col-md-4 text-md-end">
                 <a href="#" class="text-decoration-none me-3" style="color:var(--muted);font-size:0.85rem">Privasi</a>
