@@ -1,0 +1,15 @@
+vendor/
+
+.env
+
+.idea
+
+.vscode
+
+node_modules
+
+.mcp.json
+
+test.php
+
+.agents/
