@@ -15,7 +15,7 @@ function asset($path) { echo '/assets/' . ltrim($path, '/'); }
 <body>
 
 <!-- ===== Navbar ===== -->
-<nav class="navbar navbar-expand-lg">
+<nav class="navbar navbar-expand-lg fixed-top shadow-sm">
     <div class="container-lg">
         <a class="navbar-brand" href="/">My<span>Kit</span></a>
         <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navCollapse" aria-expanded="false">

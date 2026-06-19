@@ -56,47 +56,81 @@ body {
     -moz-osx-font-smoothing: grayscale;
     line-height: 1.6;
 }
-
 /* ===== Navbar ===== */
-.navbar {
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(12px);
-    border-bottom: 0.5px solid var(--border2);
-    box-shadow: 0 1px 0 var(--border);
-    position: sticky;
+.navbar{
+    background: rgba(255,255,255,.96);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--border2);
+    box-shadow: var(--shadow-sm);
+
+    position: fixed;
     top: 0;
-    z-index: 100;
+    left: 0;
+    width: 100%;
+
+    z-index: 1050;
+
+    padding: 18px 0;
+    transition: .3s ease;
 }
 
-.navbar-brand {
-    font-weight: 700;
-    font-size: 1.35rem;
-    color: var(--pk) !important;
-    letter-spacing: -0.5px;
+/* Agar konten tidak tertutup navbar */
+body{
+    padding-top:95px;
 }
 
-.navbar-brand span {
-    color: var(--pu);
+/* Logo */
+.navbar-brand{
+    font-size:2rem;
+    font-weight:800;
+    color:var(--pk)!important;
+    letter-spacing:-1px;
 }
 
-.navbar-nav .nav-link {
-    color: var(--txt2) !important;
-    font-size: 0.9rem;
-    font-weight: 500;
-    transition: color 0.2s;
-    padding: 0.4rem 0.8rem !important;
-    border-radius: var(--radius-sm);
+.navbar-brand span{
+    color:var(--pu);
 }
 
-.navbar-nav .nav-link:hover {
-    color: var(--pk) !important;
-    background: var(--pk4);
+/* Menu */
+.navbar-nav .nav-link{
+    color:var(--txt2)!important;
+    font-size:1rem;
+    font-weight:600;
+    padding:.65rem 1rem!important;
+    border-radius:12px;
+    transition:.25s;
 }
 
-.navbar-nav .nav-link.active {
-    color: var(--pk) !important;
+.navbar-nav .nav-link:hover,
+.navbar-nav .nav-link.active{
+    color:var(--pk)!important;
+    background:var(--pk4);
 }
 
+/* Tombol */
+.navbar .btn{
+    padding:.6rem 1.3rem;
+    font-size:.95rem;
+    font-weight:600;
+    border-radius:12px;
+}
+
+/* Responsive */
+@media (max-width:992px){
+
+    .navbar{
+        padding:14px 0;
+    }
+
+    .navbar-brand{
+        font-size:1.7rem;
+    }
+
+    body{
+        padding-top:85px;
+    }
+}
 /* ===== Buttons ===== */
 .btn {
     border-radius: var(--radius-sm);
