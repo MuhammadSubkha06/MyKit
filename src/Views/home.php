@@ -139,11 +139,9 @@
 <!-- ===== STATS SECTION ===== -->
 <div class="container-lg my-5">
     <div class="stats-section">
-        <div class="row g-4 text-center">
-            <div class="col-4">
-                <div class="stat-num">98%</div>
-                <div class="stat-label">Akurasi prediksi siklus</div>
-            </div>
+        <div class="d-flex flex-column justify-content-center align-items-center text-center h-100">
+            <div class="stat-num">98%</div>
+            <div class="stat-label">Akurasi prediksi siklus</div>
         </div>
     </div>
 </div>
