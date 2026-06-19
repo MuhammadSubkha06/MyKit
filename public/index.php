@@ -1,5 +1,17 @@
 <?php
 
+// Saat dijalankan lewat PHP built-in server (php -S ... public/index.php),
+// file statis yang benar-benar ada (css, js, gambar, dll) harus dilayani langsung
+// oleh server, bukan diproses oleh router kita. Tanpa ini, semua request ke
+// /assets/* akan kena 404 karena tidak cocok dengan rute manapun.
+if (php_sapi_name() === 'cli-server') {
+    $requestedPath = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+    $filePath = __DIR__ . $requestedPath;
+    if ($requestedPath !== '/' && is_file($filePath)) {
+        return false;
+    }
+}
+
 require __DIR__.'/../vendor/autoload.php';
 
 use Dotenv\Dotenv;
