@@ -257,7 +257,7 @@
 </section>
 
 <!-- ===== TESTIMONIALS ===== -->
-<section class="py-5">
+<!-- <section class="py-5">
     <div class="container-lg">
         <div class="text-center mb-5">
             <span class="section-badge">Testimoni</span>
@@ -297,7 +297,7 @@
                     <div class="d-flex align-items-center gap-2">
                         <div class="testi-avatar" style="background:var(--te4);color:var(--te)">D</div>
                         <div>
-                            <div style="font-size:0.85rem;font-weight:600">Dina, 32</div>
+                            <div style="font-size:0.85rem;font-weight:600"></div>
                             <div style="font-size:0.75rem;color:var(--muted)">Surabaya</div>
                         </div>
                     </div>
@@ -305,7 +305,7 @@
             </div>
         </div>
     </div>
-</section>
+</section> -->
 
 <!-- ===== CTA SECTION ===== -->
 <div class="container-lg pb-5">
