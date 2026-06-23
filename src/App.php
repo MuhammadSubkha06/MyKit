@@ -18,7 +18,7 @@ class App
         'POST' => [],
     ];
 
-    /** @var mixed Shared DB connection, exposed publicly (e.g. used in Views/layout.php) */
+    /** @var mixed Shared DB connection, opened lazily when a controller/model needs it. */
     public $db;
 
     public function __construct($db = null)
@@ -71,5 +71,14 @@ class App
         }
 
         return $controller->$method();
+    }
+
+    public function db(): \Models\Database
+    {
+        if (!$this->db instanceof \Models\Database) {
+            $this->db = \Models\Database::instance();
+        }
+
+        return $this->db;
     }
 }

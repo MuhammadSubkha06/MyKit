@@ -13,3 +13,7 @@ node_modules
 test.php
 
 .agents/
+
+storage/sessions/
+
+php-server.*.log

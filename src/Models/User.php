@@ -19,7 +19,7 @@ class User
 
         $hash = password_hash($password, PASSWORD_DEFAULT);
 
-        $this->db->execute(
+        $row = $this->db->fetch(
 
             "INSERT INTO users
             (
@@ -35,7 +35,9 @@ class User
                 :email,
                 :password,
                 NOW()
-            )",
+            )
+
+            RETURNING id",
 
             [
 
@@ -49,7 +51,7 @@ class User
 
         );
 
-        return (int)$this->db->lastInsertId();
+        return (int)($row['id'] ?? 0);
     }
 
     public function find(int $id)

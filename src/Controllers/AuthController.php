@@ -7,14 +7,26 @@ use Helpers\Auth;
 use Helpers\Response;
 use Helpers\Validator;
 use Helpers\Flash;
+use Models\Database;
 
 class AuthController
 {
-    private User $user;
+    private ?User $user = null;
 
     public function __construct($db)
     {
-        $this->user = new User($db);
+        if ($db instanceof Database) {
+            $this->user = new User($db);
+        }
+    }
+
+    private function user(): User
+    {
+        if ($this->user === null) {
+            $this->user = new User(Database::instance());
+        }
+
+        return $this->user;
     }
 
     public function loginForm()
@@ -44,14 +56,14 @@ class AuthController
             Response::redirect('/register');
         }
 
-        if ($this->user->findByEmail($email)) {
+        if ($this->user()->findByEmail($email)) {
 
             Flash::error("Email sudah digunakan.");
 
             Response::redirect('/register');
         }
 
-        $this->user->create(
+        $this->user()->create(
             $name,
             $email,
             $password
@@ -67,7 +79,7 @@ class AuthController
         $email = trim($_POST['email'] ?? '');
         $password = $_POST['password'] ?? '';
 
-        $user = $this->user->findByEmail($email);
+        $user = $this->user()->findByEmail($email);
 
         if (!$user) {
 

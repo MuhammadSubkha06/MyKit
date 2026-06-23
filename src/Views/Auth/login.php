@@ -1,6 +1,7 @@
 <?php ob_start(); ?>
 
-<div style="min-height:80vh;display:flex;align-items:center;background:linear-gradient(170deg,#FFF5F8 0%,#F8F0FF 100%);padding:3rem 0">
+<div
+    style="min-height:80vh;display:flex;align-items:center;background:linear-gradient(170deg,#FFF5F8 0%,#F8F0FF 100%);padding:3rem 0">
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-md-5 col-lg-4">
@@ -8,9 +9,10 @@
                 <!-- Logo & Heading -->
                 <div class="text-center mb-4">
                     <a href="/" style="text-decoration:none">
-                        <div class="auth-brand">My<span>Kit</span></div>
+                        <img src="/assets/images/logo2.png" alt="MyKit" height="70" width="140" class="me-2">
                     </a>
-                    <p style="font-size:0.875rem;color:var(--muted);margin-top:0.5rem">Masuk untuk melanjutkan pencatatanmu</p>
+                    <p style="font-size:0.875rem;color:var(--muted);margin-top:0.5rem">Masuk untuk melanjutkan
+                        pencatatanmu</p>    
                 </div>
 
                 <!-- Card -->
@@ -18,13 +20,16 @@
                     <div class="card-body p-4">
 
                         <?php if (!empty($_SESSION['flash'])): ?>
-                        <div class="alert alert-warning d-flex align-items-center gap-2 mb-3" style="border-radius:var(--radius-sm)">
-                            <i class="bi bi-exclamation-triangle-fill"></i>
-                            <?php echo $_SESSION['flash']; unset($_SESSION['flash']); ?>
-                        </div>
+                            <div class="alert alert-warning d-flex align-items-center gap-2 mb-3"
+                                style="border-radius:var(--radius-sm)">
+                                <i class="bi bi-exclamation-triangle-fill"></i>
+                                <?php echo $_SESSION['flash'];
+                                unset($_SESSION['flash']); ?>
+                            </div>
                         <?php endif; ?>
 
-                        <h4 style="font-size:1.1rem;font-weight:700;color:var(--txt);margin-bottom:1.5rem">Selamat datang kembali 👋</h4>
+                        <h4 style="font-size:1.1rem;font-weight:700;color:var(--txt);margin-bottom:1.5rem">Selamat
+                            datang kembali 👋</h4>
 
                         <form method="post" action="/login">
                             <input type="hidden" name="_csrf" value="<?php echo \Helpers\Csrf::token(); ?>">
@@ -32,36 +37,47 @@
                             <div class="mb-3">
                                 <label class="form-label">Alamat Email</label>
                                 <div class="input-group">
-                                    <span class="input-group-text" style="background:var(--pk4);border-color:var(--border2);border-right:none">
+                                    <span class="input-group-text"
+                                        style="background:var(--pk4);border-color:var(--border2);border-right:none">
                                         <i class="bi bi-envelope" style="color:var(--pk)"></i>
                                     </span>
-                                    <input class="form-control" type="email" name="email" placeholder="kamu@email.com" required
-                                        style="border-left:none;padding-left:0">
+                                    <input class="form-control" type="email" name="email" placeholder="kamu@email.com"
+                                        required style="border-left:none;padding-left:0">
                                 </div>
                             </div>
 
                             <div class="mb-4">
                                 <div class="d-flex justify-content-between align-items-center mb-1">
                                     <label class="form-label mb-0">Password</label>
-                                    <a href="#" style="font-size:0.78rem;color:var(--pk);text-decoration:none">Lupa password?</a>
+                                    <a href="#" style="font-size:0.78rem;color:var(--pk);text-decoration:none">Lupa
+                                        password?</a>
                                 </div>
                                 <div class="input-group">
-                                    <span class="input-group-text" style="background:var(--pk4);border-color:var(--border2);border-right:none">
+                                    <span class="input-group-text"
+                                        style="background:var(--pk4);border-color:var(--border2);border-right:none">
                                         <i class="bi bi-lock" style="color:var(--pk)"></i>
                                     </span>
-                                    <input class="form-control" type="password" name="password" placeholder="••••••••" required
-                                        style="border-left:none;padding-left:0">
+                                    <input class="form-control" type="password" name="password" id="loginPassword"
+                                        placeholder="••••••••" required
+                                        style="border-left:none;padding-left:0;border-right:none">
+                                    <span class="input-group-text"
+                                        style="background:var(--pk4);border-color:var(--border2);border-left:none;cursor:pointer"
+                                        onclick="togglePassword('loginPassword', this)">
+                                        <i class="bi bi-eye" style="color:var(--pk)"></i>
+                                    </span>
                                 </div>
                             </div>
 
-                            <button class="btn btn-primary w-100 py-2" type="submit" style="font-size:0.95rem;border-radius:var(--radius)">
+                            <button class="btn btn-primary w-100 py-2" type="submit"
+                                style="font-size:0.95rem;border-radius:var(--radius)">
                                 <i class="bi bi-box-arrow-in-right me-2"></i>Masuk
                             </button>
                         </form>
 
                         <div class="text-center mt-4" style="font-size:0.85rem;color:var(--muted)">
                             Belum punya akun?
-                            <a href="/register" style="color:var(--pk);font-weight:600;text-decoration:none">Daftar gratis →</a>
+                            <a href="/register" style="color:var(--pk);font-weight:600;text-decoration:none">Daftar
+                                gratis →</a>
                         </div>
                     </div>
                 </div>
@@ -74,4 +90,19 @@
     </div>
 </div>
 
-<?php $content = ob_get_clean(); require __DIR__ . '/../layout.php'; ?>
+<script>
+    function togglePassword(inputId, wrap) {
+        const input = document.getElementById(inputId);
+        const icon = wrap.querySelector('i');
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.replace('bi-eye', 'bi-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.replace('bi-eye-slash', 'bi-eye');
+        }
+    }
+</script>
+
+<?php $content = ob_get_clean();
+require __DIR__ . '/../layout.php'; ?>

@@ -18,7 +18,7 @@ class Cycle
         int $periodLength
     ): int {
 
-        $this->db->execute(
+        $row = $this->db->fetch(
 
             "INSERT INTO cycles
             (
@@ -36,7 +36,9 @@ class Cycle
                 :cycle,
                 :period,
                 NOW()
-            )",
+            )
+
+            RETURNING id",
 
             [
 
@@ -52,7 +54,7 @@ class Cycle
 
         );
 
-        return (int)$this->db->lastInsertId();
+        return (int)($row['id'] ?? 0);
     }
 
     public function all(int $userId): array

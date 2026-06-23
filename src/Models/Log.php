@@ -27,7 +27,7 @@ class Log
 
     ): int {
 
-        $this->db->execute(
+        $row = $this->db->fetch(
 
             "INSERT INTO logs
             (
@@ -49,7 +49,9 @@ class Log
                 :notes,
                 :energy,
                 NOW()
-            )",
+            )
+
+            RETURNING id",
 
             [
 
@@ -69,7 +71,34 @@ class Log
 
         );
 
-        return (int)$this->db->lastInsertId();
+        return (int)($row['id'] ?? 0);
+    }
+
+    public function countForUserDate(int $userId, string $date): int
+    {
+        $row = $this->db->fetch(
+
+            "SELECT COUNT(*) AS total
+
+            FROM logs
+
+            INNER JOIN cycles ON cycles.id = logs.cycle_id
+
+            WHERE cycles.user_id=:user
+
+            AND logs.log_date=:date",
+
+            [
+
+                'user'=>$userId,
+
+                'date'=>$date
+
+            ]
+
+        );
+
+        return (int)($row['total'] ?? 0);
     }
 
     public function forCycle(int $cycleId): array

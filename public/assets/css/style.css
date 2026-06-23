@@ -1,10 +1,10 @@
 /* ===== MyKit — Design System ===== */
 :root {
-    --pk: #E8316A;
-    --pk2: #FF6B9D;
-    --pk3: #FFB3CC;
-    --pk4: #FFF0F5;
-    --pk5: #FFF8FB;
+    --pk: #F76370;
+    --pk2: #F98A8C;
+    --pk3: #FDC7C8;
+    --pk4: #FDF6ED;
+    --pk5: #FFF8F7;
     --pu: #7C3AED;
     --pu2: #A855F7;
     --pu4: #F3E8FF;
@@ -18,7 +18,7 @@
     --gr4: #F0FDF4;
 
     --surface: #ffffff;
-    --bg: #FFF8FB;
+    --bg: #FDF6ED;
     --txt: #1a1a2e;
     --txt2: #4a4a6a;
     --muted: #8b8ba7;
@@ -46,6 +46,12 @@ html,
 body {
     height: 100%;
 }
+
+main {
+    padding-top: 95px;
+    flex-grow: 1;
+}
+
 
 body {
     font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
@@ -86,10 +92,17 @@ body{
     font-weight:800;
     color:var(--pk)!important;
     letter-spacing:-1px;
+    line-height:1;
 }
 
 .navbar-brand span{
     color:var(--pu);
+}
+
+.navbar-brand img{
+    display:block;
+    width:auto;
+    max-width:150px;
 }
 
 /* Menu */
@@ -127,8 +140,71 @@ body{
         font-size:1.7rem;
     }
 
-    body{
+    .navbar-brand img {
+        height: 32px;
+    }
+
+    main{
         padding-top:85px;
+    }
+}
+
+@media (max-width:768px) {
+    .navbar-nav {
+        padding-top: 0.5rem;
+    }
+
+    .navbar-nav .nav-link {
+        padding: 0.75rem 1rem !important;
+    }
+
+    .navbar .btn {
+        width: 100%;
+        text-align: center;
+    }
+
+    .hero-title {
+        font-size: 2rem;
+    }
+
+    .hero-subtitle {
+        font-size: 1rem;
+    }
+
+    .card,
+    .stat-card,
+    .feat-card {
+        padding: 1rem;
+    }
+
+    .log-item {
+        padding: 1rem;
+    }
+
+    .energy-labels {
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+    }
+
+    .energy-labels span {
+        display: block;
+        font-size: 0.82rem;
+    }
+
+    .symptom-tag {
+        font-size: 0.72rem;
+    }
+
+    .chart-legend {
+        flex-direction: column;
+        gap: 0.6rem;
+    }
+
+    .calendar,
+    .calendar .cal-day,
+    .calendar .cal-header {
+        min-height: auto;
     }
 }
 /* ===== Buttons ===== */

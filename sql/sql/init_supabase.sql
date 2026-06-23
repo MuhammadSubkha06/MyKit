@@ -77,6 +77,8 @@ CREATE TABLE logs
 
     notes TEXT,
 
+    energy INTEGER NOT NULL DEFAULT 3,
+
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT fk_log_cycle

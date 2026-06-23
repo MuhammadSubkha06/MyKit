@@ -7,16 +7,37 @@ use Models\Log;
 use Helpers\Auth;
 use Helpers\Response;
 use Helpers\Flash;
+use Models\Database;
 
 class CycleController
 {
-    private Cycle $cycle;
-    private Log $log;
+    private ?Cycle $cycle = null;
+    private ?Log $log = null;
 
     public function __construct($db)
     {
-        $this->cycle = new Cycle($db);
-        $this->log = new Log($db);
+        if ($db instanceof Database) {
+            $this->cycle = new Cycle($db);
+            $this->log = new Log($db);
+        }
+    }
+
+    private function cycle(): Cycle
+    {
+        if ($this->cycle === null) {
+            $this->cycle = new Cycle(Database::instance());
+        }
+
+        return $this->cycle;
+    }
+
+    private function log(): Log
+    {
+        if ($this->log === null) {
+            $this->log = new Log(Database::instance());
+        }
+
+        return $this->log;
     }
 
     public function dashboard()
@@ -25,17 +46,12 @@ class CycleController
 
         $userId = Auth::id();
 
-        $cycles = $this->cycle->all($userId);
+        $cycles = $this->cycle()->all($userId);
 
-        $latest = $this->cycle->latest($userId);
+        $latest = $this->cycle()->latest($userId);
 
-        $logs = [];
-
-        if ($latest) {
-
-            $logs = $this->log->forCycle($latest['id']);
-
-        }
+        // Ambil SEMUA log milik user (lintas siklus), bukan hanya siklus terbaru
+        $logs = $this->log()->forUser($userId);
 
         require __DIR__ . '/../Views/dashboard.php';
     }
@@ -46,7 +62,7 @@ class CycleController
 
         $userId = Auth::id();
 
-        $logs = $this->log->forUser($userId);
+        $logs = $this->log()->forUser($userId);
 
         require __DIR__ . '/../Views/insights.php';
     }
@@ -55,16 +71,32 @@ class CycleController
     {
         Auth::requireLogin();
 
-        $this->cycle->create(
+        $startDate = $_POST['start_date'] ?? date('Y-m-d');
 
+        // Durasi siklus wajar: 21-45 hari, default 28
+        $cycleLength = (int) ($_POST['cycle_length'] ?? 28);
+        if ($cycleLength < 21)
+            $cycleLength = 21;
+        if ($cycleLength > 45)
+            $cycleLength = 45;
+
+        // Durasi menstruasi wajar: 2-10 hari, default 5
+        $periodLength = (int) ($_POST['period_length'] ?? 5);
+        if ($periodLength < 2)
+            $periodLength = 5; // jaga-jaga kalau terkirim 0/kosong
+        if ($periodLength > 10)
+            $periodLength = 10;
+
+        // Durasi menstruasi tidak boleh lebih panjang dari durasi siklus
+        if ($periodLength >= $cycleLength) {
+            $periodLength = max(2, intdiv($cycleLength, 4));
+        }
+
+        $this->cycle()->create(
             Auth::id(),
-
-            $_POST['start_date'],
-
-            (int)$_POST['cycle_length'],
-
-            (int)$_POST['period_length']
-
+            $startDate,
+            $cycleLength,
+            $periodLength
         );
 
         Flash::success("Data siklus berhasil disimpan.");
@@ -76,39 +108,73 @@ class CycleController
     {
         Auth::requireLogin();
 
+        $userId = Auth::id();
+        $date = $_POST['date'] ?? date('Y-m-d');
+
+        $isAjax = (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest')
+            || (strpos($_SERVER['HTTP_ACCEPT'] ?? '', 'application/json') !== false);
+
+        $existingCount = $this->log()->countForUserDate($userId, $date);
+
+        // Maksimal 2 log per hari
+        if ($existingCount >= 2) {
+            $msg = "Batas harian tercapai. Maksimal 2 log menstruasi per hari.";
+
+            if ($isAjax) {
+                Response::json([
+                    'status' => 'error',
+                    'message' => $msg
+                ], 422);
+            }
+
+            Flash::error($msg);
+            Response::redirect('/dashboard');
+        }
+
         $symptoms = $_POST['symptoms'] ?? [];
 
         if (!is_array($symptoms)) {
             $symptoms = [];
         }
 
-        $this->log->create(
-
-            (int)$_POST['cycle_id'],
-
-            $_POST['date'],
-
+        $id = $this->log()->create(
+            (int) $_POST['cycle_id'],
+            $date,
             $_POST['mood'],
-
             $symptoms,
-
             $_POST['notes'] ?? '',
-
-            (int)($_POST['energy'] ?? 3)
-
+            (int) ($_POST['energy'] ?? 3)
         );
 
-        Flash::success("Log berhasil ditambahkan.");
+        $dayNumber = $existingCount + 1; // urutan simpan hari ini: 1 atau 2
+
+        if ($isAjax) {
+            Response::json([
+                'status' => 'ok',
+                'message' => 'Log berhasil ditambahkan.',
+                'day_number' => $dayNumber,
+                'log' => [
+                    'id' => $id,
+                    'cycle_id' => (int) $_POST['cycle_id'],
+                    'date' => $date,
+                    'mood' => $_POST['mood'],
+                    'symptoms' => $symptoms,
+                    'notes' => $_POST['notes'] ?? '',
+                    'energy' => (int) ($_POST['energy'] ?? 3)
+                ]
+            ], 201);
+        }
+
+        Flash::success("Log berhasil ditambahkan. (Menstruasi Day {$dayNumber})");
 
         Response::redirect('/dashboard');
     }
-
     public function deleteCycle()
     {
         Auth::requireLogin();
 
-        $this->cycle->delete(
-            (int)$_POST['id']
+        $this->cycle()->delete(
+            (int) $_POST['id']
         );
 
         Flash::success("Siklus berhasil dihapus.");
@@ -120,8 +186,8 @@ class CycleController
     {
         Auth::requireLogin();
 
-        $this->log->delete(
-            (int)$_POST['id']
+        $this->log()->delete(
+            (int) $_POST['id']
         );
 
         Flash::success("Log berhasil dihapus.");

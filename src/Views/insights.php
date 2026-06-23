@@ -1,13 +1,85 @@
 <?php ob_start(); ?>
 
+<style>
+    .insights-stat {
+        position: relative;
+        overflow: hidden;
+        border-radius: var(--radius);
+        transition: transform 0.22s ease, box-shadow 0.22s ease;
+    }
+    .insights-stat:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 14px 28px rgba(232, 49, 106, 0.12);
+    }
+    .insights-stat::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(135deg, rgba(232,49,106,0.05), rgba(124,58,237,0.05));
+        opacity: 0;
+        transition: opacity 0.22s ease;
+    }
+    .insights-stat:hover::before { opacity: 1; }
+    .insights-stat > * { position: relative; z-index: 1; }
+
+    .insight-card.card {
+        border-radius: var(--radius-lg, 18px);
+        transition: box-shadow 0.25s ease, transform 0.25s ease;
+        overflow: hidden;
+    }
+    .insight-card.card:hover {
+        box-shadow: 0 16px 34px rgba(124, 58, 237, 0.10);
+    }
+    .insight-card .card-header {
+        background: linear-gradient(135deg, #FFF8FA 0%, #FBF6FD 100%);
+        font-weight: 700;
+        font-size: 0.92rem;
+        border-bottom: 1px solid var(--border2);
+    }
+
+    .symptom-bar {
+        height: 9px;
+        border-radius: 8px;
+        background: var(--pk5);
+        overflow: hidden;
+    }
+    .symptom-bar-fill {
+        height: 100%;
+        border-radius: 8px;
+        background: linear-gradient(90deg, var(--pk), var(--pu));
+        transition: width 0.6s ease;
+    }
+    .symptom-bar-wrap { margin-bottom: 0.85rem; }
+    .symptom-bar-wrap:last-child { margin-bottom: 0; }
+
+    .table tbody tr {
+        transition: background 0.15s ease;
+    }
+    .table tbody tr:hover {
+        background: var(--pk5);
+    }
+
+    .insights-header-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.25rem 0.75rem;
+        border-radius: 999px;
+        background: linear-gradient(135deg, #fde2f3, #ede4fb);
+        color: #be185d;
+        font-weight: 700;
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+    }
+</style>
+
 <div style="background:linear-gradient(170deg,#FFF5F8 0%,#F8F0FF 60%,var(--bg) 100%);padding:2.5rem 0 0">
 <div class="container-lg">
     <div class="d-flex align-items-center justify-content-between mb-4">
         <div>
-            <div style="font-size:0.78rem;color:var(--muted);font-weight:500;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:4px">
-                <i class="bi bi-graph-up me-1"></i>Analitik Personal
-            </div>
-            <h2 style="font-size:1.6rem;font-weight:700;color:var(--txt);margin:0">Insights & Analisis</h2>
+            <span class="insights-header-badge"><i class="bi bi-graph-up"></i> Analitik Personal</span>
+            <h2 style="font-size:1.6rem;font-weight:700;color:var(--txt);margin:0.5rem 0 0">Insights & Analisis</h2>
             <p style="font-size:0.875rem;color:var(--txt2);margin:4px 0 0">Temukan pola dan tren dalam siklus kesehatanmu.</p>
         </div>
         <a href="/dashboard" class="btn btn-outline-secondary btn-sm">
@@ -38,25 +110,25 @@
     <!-- Summary Stat Cards -->
     <div class="row g-3 mb-4">
         <div class="col-6 col-md-3">
-            <div class="stat-card text-center py-3">
+            <div class="stat-card insights-stat text-center py-3">
                 <div style="font-size:2rem;font-weight:700;color:var(--pk)"><?php echo $totalLogs; ?></div>
                 <div style="font-size:0.78rem;color:var(--muted)">Total Log</div>
             </div>
         </div>
         <div class="col-6 col-md-3">
-            <div class="stat-card text-center py-3">
+            <div class="stat-card insights-stat text-center py-3">
                 <div style="font-size:2rem;font-weight:700;color:var(--pu)"><?php echo $avgEnergy; ?></div>
                 <div style="font-size:0.78rem;color:var(--muted)">Energi Rata-rata</div>
             </div>
         </div>
         <div class="col-6 col-md-3">
-            <div class="stat-card text-center py-3">
+            <div class="stat-card insights-stat text-center py-3">
                 <div style="font-size:1.4rem;font-weight:700;color:var(--te)"><?php echo $topMood; ?></div>
                 <div style="font-size:0.78rem;color:var(--muted)">Mood Terbanyak</div>
             </div>
         </div>
         <div class="col-6 col-md-3">
-            <div class="stat-card text-center py-3">
+            <div class="stat-card insights-stat text-center py-3">
                 <div style="font-size:2rem;font-weight:700;color:var(--am)"><?php echo count($counts); ?></div>
                 <div style="font-size:0.78rem;color:var(--muted)">Jenis Gejala</div>
             </div>

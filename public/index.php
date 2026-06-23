@@ -19,17 +19,24 @@ use Dotenv\Dotenv;
 $dotenv = Dotenv::createImmutable(dirname(__DIR__));
 $dotenv->safeLoad();
 
+$sessionPath = dirname(__DIR__) . '/storage/sessions';
+if (!is_dir($sessionPath)) {
+    mkdir($sessionPath, 0775, true);
+}
+session_save_path($sessionPath);
+
 session_start();
 
 $config = require __DIR__.'/../config/app.php';
 
 date_default_timezone_set($config['timezone']);
 
-$db = \Models\Database::instance();
+$db = null;
 
 require __DIR__.'/../src/App.php';
 
 $app = new App($db);
+$GLOBALS['app'] = $app;
 
 /*
 |--------------------------------------------------------------------------
@@ -44,6 +51,12 @@ $app->get('/login','AuthController@loginForm');
 $app->post('/login','AuthController@login');
 
 $app->get('/register','AuthController@registerForm');
+
+$app->get('/about','HomeController@about');
+
+$app->get('/privacy','HomeController@privacy');
+
+$app->get('/terms','HomeController@terms');
 
 $app->post('/register','AuthController@register');
 
