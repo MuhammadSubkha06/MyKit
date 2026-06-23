@@ -71,6 +71,9 @@ class CycleController
     {
         Auth::requireLogin();
 
+        $isAjax = (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest')
+            || (strpos($_SERVER['HTTP_ACCEPT'] ?? '', 'application/json') !== false);
+
         $startDate = $_POST['start_date'] ?? date('Y-m-d');
 
         // Durasi siklus wajar: 21-45 hari, default 28
@@ -92,12 +95,26 @@ class CycleController
             $periodLength = max(2, intdiv($cycleLength, 4));
         }
 
-        $this->cycle()->create(
+        $id = $this->cycle()->create(
             Auth::id(),
             $startDate,
             $cycleLength,
             $periodLength
         );
+
+        if ($isAjax) {
+            Response::json([
+                'status' => 'ok',
+                'message' => 'Data siklus berhasil disimpan.',
+                'day_number' => 1,
+                'cycle' => [
+                    'id' => $id,
+                    'start_date' => $startDate,
+                    'cycle_length' => $cycleLength,
+                    'period_length' => $periodLength
+                ]
+            ], 201);
+        }
 
         Flash::success("Data siklus berhasil disimpan.");
 

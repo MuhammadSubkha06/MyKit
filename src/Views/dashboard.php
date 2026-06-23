@@ -1,122 +1,20 @@
-<?php ob_start();
-$userName = htmlspecialchars((new \Models\User($GLOBALS['app']->db()))->find($_SESSION['user_id'])['name'] ?? 'User');
+<?php
+ob_start();
+
+/*
+ * ====== Akar masalah error sebelumnya ======
+ * CycleController::__construct($db) hanya memakai $db untuk membuat
+ * Cycle/Log internal -- ia TIDAK menyimpannya ke property public, dan
+ * dashboard.php di-require langsung tanpa $db diteruskan ke scope view.
+ * Jadi $GLOBALS['app']->db tidak pernah terisi dari sisi ini -- bukan
+ * masalah urutan inisialisasi, melainkan view ini salah mengambil koneksi.
+ *
+ * Perbaikan: pakai Models\Database::instance(), pola yang sama yang
+ * sudah dipakai CycleController::cycle()/::log() saat $db null.
+ */
+$db = \Models\Database::instance();
+$userName = htmlspecialchars((new \Models\User($db))->find($_SESSION['user_id'])['name'] ?? 'User');
 ?>
-
-<style>
-    /* ===== Dashboard Enhancement Layer ===== */
-    .dash-greeting-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.4rem;
-        padding: 0.25rem 0.75rem;
-        border-radius: 999px;
-        background: linear-gradient(135deg, #fde2f3, #ede4fb);
-        color: #be185d;
-        font-weight: 700;
-        font-size: 0.7rem;
-        text-transform: uppercase;
-        letter-spacing: 0.6px;
-    }
-
-    .stat-card.dash-stat {
-        position: relative;
-        overflow: hidden;
-        border-radius: var(--radius);
-        transition: transform 0.22s ease, box-shadow 0.22s ease;
-    }
-    .stat-card.dash-stat:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 14px 30px rgba(232, 49, 106, 0.12);
-    }
-    .stat-card.dash-stat .icon-wrap {
-        transition: transform 0.22s ease;
-    }
-    .stat-card.dash-stat:hover .icon-wrap {
-        transform: scale(1.1) rotate(-4deg);
-    }
-
-    .card.dash-card {
-        border-radius: var(--radius-lg, 18px);
-        transition: box-shadow 0.25s ease;
-    }
-    .card.dash-card:hover {
-        box-shadow: 0 16px 34px rgba(124, 58, 237, 0.08);
-    }
-
-    /* Calendar polish */
-    .calendar .cal-day {
-        transition: transform 0.15s ease, box-shadow 0.15s ease;
-    }
-    .calendar .cal-day:not(.empty):hover {
-        transform: scale(1.08);
-        box-shadow: 0 4px 10px rgba(232, 49, 106, 0.18);
-        z-index: 2;
-    }
-    .calendar .cal-day.today {
-        box-shadow: 0 0 0 2px var(--pk);
-    }
-
-    /* Log items */
-    .log-item {
-        border-radius: 14px;
-        padding: 0.85rem 1rem;
-        margin-bottom: 0.6rem;
-        background: #fff;
-        border: 1px solid var(--border2);
-        transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
-    }
-    .log-item:hover {
-        transform: translateX(3px);
-        box-shadow: 0 8px 18px rgba(232, 49, 106, 0.10);
-        border-color: rgba(232, 49, 106, 0.2);
-    }
-    .log-item:last-child { margin-bottom: 0; }
-
-    /* Mood picker polish */
-    .mood-pick-option {
-        transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease;
-    }
-    .mood-pick-option:hover {
-        transform: translateY(-2px);
-    }
-
-    /* Progress bar shimmer */
-    @keyframes shimmerMove {
-        0% { background-position: -200px 0; }
-        100% { background-position: 200px 0; }
-    }
-    .progress-shimmer {
-        background-image: linear-gradient(90deg, var(--pk), var(--pu), var(--pk));
-        background-size: 200px 100%;
-        animation: shimmerMove 3s linear infinite;
-    }
-
-    /* Cycle stat box */
-    .cycle-stat-box {
-        transition: box-shadow 0.2s ease;
-    }
-    .cycle-stat-box:hover {
-        box-shadow: 0 8px 20px rgba(124, 58, 237, 0.08);
-    }
-
-    .btn-primary.submit-glow {
-        background: linear-gradient(135deg, var(--pk), var(--pu));
-        border: none;
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-    .btn-primary.submit-glow:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 22px rgba(232, 49, 106, 0.28);
-    }
-
-    .chart-legend span i {
-        display: inline-block;
-        width: 9px;
-        height: 9px;
-        border-radius: 50%;
-        margin-right: 4px;
-    }
-</style>
 
 <div style="background:linear-gradient(170deg,#FFF5F8 0%,#F8F0FF 60%,var(--bg) 100%);padding:2.5rem 0 0">
     <div class="container-lg">
@@ -124,8 +22,11 @@ $userName = htmlspecialchars((new \Models\User($GLOBALS['app']->db()))->find($_S
         <!-- ===== Header ===== -->
         <div class="d-flex align-items-start justify-content-between mb-4">
             <div>
-                <span class="dash-greeting-badge"><i class="bi bi-calendar3"></i> <?php echo date('l, d F Y'); ?></span>
-                <h2 style="font-size:1.6rem;font-weight:700;color:var(--txt);margin:0.5rem 0 0">Halo, <?php echo $userName; ?> 👋
+                <div
+                    style="font-size:0.78rem;color:var(--muted);font-weight:500;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:4px">
+                    <i class="bi bi-calendar3 me-1"></i><?php echo date('l, d F Y'); ?>
+                </div>
+                <h2 style="font-size:1.6rem;font-weight:700;color:var(--txt);margin:0">Halo, <?php echo $userName; ?> 👋
                 </h2>
                 <p style="font-size:0.875rem;color:var(--txt2);margin:4px 0 0">Berikut ringkasan siklus dan aktivitas
                     kamu hari ini.</p>
@@ -138,7 +39,7 @@ $userName = htmlspecialchars((new \Models\User($GLOBALS['app']->db()))->find($_S
         <!-- ===== 3 Stat Cards ===== -->
         <div class="row g-3 mb-4">
             <div class="col-md-4">
-                <div class="stat-card dash-stat d-flex align-items-center gap-3">
+                <div class="stat-card d-flex align-items-center gap-3">
                     <div class="icon-wrap" style="background:var(--pk4)">
                         <i class="bi bi-calendar-check" style="color:var(--pk);font-size:1.25rem"></i>
                     </div>
@@ -161,7 +62,7 @@ $userName = htmlspecialchars((new \Models\User($GLOBALS['app']->db()))->find($_S
                 </div>
             </div>
             <div class="col-md-4">
-                <div class="stat-card dash-stat d-flex align-items-center gap-3">
+                <div class="stat-card d-flex align-items-center gap-3">
                     <div class="icon-wrap" style="background:var(--pu4)">
                         <i class="bi bi-arrow-repeat" style="color:var(--pu);font-size:1.25rem"></i>
                     </div>
@@ -174,7 +75,7 @@ $userName = htmlspecialchars((new \Models\User($GLOBALS['app']->db()))->find($_S
                 </div>
             </div>
             <div class="col-md-4">
-                <div class="stat-card dash-stat d-flex align-items-center gap-3">
+                <div class="stat-card d-flex align-items-center gap-3">
                     <div class="icon-wrap" style="background:var(--te4)">
                         <i class="bi bi-droplet-half" style="color:var(--te);font-size:1.25rem"></i>
                     </div>
@@ -197,7 +98,7 @@ $userName = htmlspecialchars((new \Models\User($GLOBALS['app']->db()))->find($_S
         <div class="col-lg-7">
 
             <!-- Calendar Card -->
-            <div class="card dash-card p-4 mb-4">
+            <div class="card p-4 mb-4">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h5 style="font-weight:700;font-size:1rem;margin:0">
                         <i class="bi bi-calendar3 me-2" style="color:var(--pk)"></i>Kalender <?php echo date('F Y'); ?>
@@ -211,6 +112,10 @@ $userName = htmlspecialchars((new \Models\User($GLOBALS['app']->db()))->find($_S
                                 style="display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--pk2);margin-right:4px"></span>Ringan</span>
                     </div>
                 </div>
+
+                <p style="font-size:0.72rem;color:var(--muted);margin:0 0 0.5rem">
+                    <i class="bi bi-cursor me-1"></i>Klik tanggal untuk menandai mulai menstruasi
+                </p>
 
                 <!-- Day headers -->
                 <div class="calendar mb-2">
@@ -251,7 +156,13 @@ $userName = htmlspecialchars((new \Models\User($GLOBALS['app']->db()))->find($_S
                                 $cls = ($cls === 'today' ? 'today ' . $flowCls : $flowCls);
                             }
                         }
-                        echo '<div class="cal-day ' . $cls . '">' . $d . '</div>';
+                        $date = $cur->format('Y-m-d');
+
+                        echo '
+<div class="cal-day ' . $cls . ' calendar-day"
+     data-date="' . $date . '">
+    ' . $d . '
+</div>';
                     }
                     ?>
                 </div>
@@ -270,7 +181,7 @@ $userName = htmlspecialchars((new \Models\User($GLOBALS['app']->db()))->find($_S
             </div>
 
             <!-- Recent Logs -->
-            <div class="card dash-card p-4">
+            <div class="card p-4">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h5 style="font-weight:700;font-size:1rem;margin:0">
                         <i class="bi bi-journal-text me-2" style="color:var(--pu)"></i>Log Terbaru
@@ -278,7 +189,7 @@ $userName = htmlspecialchars((new \Models\User($GLOBALS['app']->db()))->find($_S
                     <span style="font-size:0.75rem;color:var(--muted)"><?php echo count($logs ?? []); ?> entri</span>
                 </div>
                 <div id="recentLogs">
-                    <?php if ($logs):
+                    <?php if (!empty($logs)):
                         foreach (array_slice($logs, 0, 5) as $l):
                             $moodClass = $l['mood'] === 'Sangat Baik' ? 'good' : ($l['mood'] === 'Buruk' ? 'bad' : '');
                             ?>
@@ -321,12 +232,12 @@ $userName = htmlspecialchars((new \Models\User($GLOBALS['app']->db()))->find($_S
         <div class="col-lg-5">
 
             <!-- Cycle Stats Card -->
-            <div class="card dash-card p-4 mb-4">
+            <div class="card p-4 mb-4">
                 <h5 style="font-weight:700;font-size:1rem;margin-bottom:1rem">
                     <i class="bi bi-activity me-2" style="color:var(--te)"></i>Statistik Siklus
                 </h5>
                 <?php if ($latest): ?>
-                    <div class="cycle-stat-box"
+                    <div
                         style="background:var(--pk5);border-radius:var(--radius-sm);padding:1rem;border:0.5px solid var(--border2)">
                         <div class="d-flex justify-content-between py-2 border-bottom"
                             style="border-color:var(--border2)!important">
@@ -359,8 +270,8 @@ $userName = htmlspecialchars((new \Models\User($GLOBALS['app']->db()))->find($_S
                             <span><?php echo $progress; ?>%</span>
                         </div>
                         <div style="height:8px;background:var(--pk4);border-radius:8px;overflow:hidden">
-                            <div class="progress-shimmer"
-                                style="width:<?php echo $progress; ?>%;height:100%;border-radius:8px;transition:width 0.3s">
+                            <div
+                                style="width:<?php echo $progress; ?>%;height:100%;background:linear-gradient(90deg,var(--pk),var(--pu));border-radius:8px;transition:width 0.3s">
                             </div>
                         </div>
                     </div>
@@ -374,7 +285,7 @@ $userName = htmlspecialchars((new \Models\User($GLOBALS['app']->db()))->find($_S
             </div>
 
             <!-- Quick Log Form -->
-            <div class="card dash-card p-4">
+            <div class="card p-4">
                 <h5 style="font-weight:700;font-size:1rem;margin-bottom:1.25rem">
                     <i class="bi bi-plus-circle-fill me-2" style="color:var(--pk)"></i>Tambah Log Cepat
                 </h5>
@@ -393,7 +304,7 @@ $userName = htmlspecialchars((new \Models\User($GLOBALS['app']->db()))->find($_S
                             <?php foreach (['Buruk' => '😔', 'Biasa' => '😐', 'Sangat Baik' => '😊'] as $mood => $emoji): ?>
                                 <label style="flex:1;cursor:pointer">
                                     <input type="radio" name="mood" value="<?php echo $mood; ?>" class="d-none" <?php echo $mood === 'Biasa' ? 'checked' : ''; ?>>
-                                    <div class="mood-pick-option text-center p-2 rounded"
+                                    <div class="text-center p-2 rounded"
                                         style="border:1.5px solid var(--border2);font-size:1.3rem;transition:all 0.15s"
                                         onclick="this.closest('.d-flex').querySelectorAll('[style]').forEach(e=>e.style.borderColor='var(--border2)');this.style.borderColor='var(--pk)';this.style.background='var(--pk4)'">
                                         <?php echo $emoji; ?>
@@ -416,7 +327,7 @@ $userName = htmlspecialchars((new \Models\User($GLOBALS['app']->db()))->find($_S
                         </div>
                     </div>
 
-                    <button class="btn btn-primary submit-glow w-100 py-2" style="border-radius:var(--radius);font-size:0.95rem">
+                    <button class="btn btn-primary w-100 py-2" style="border-radius:var(--radius);font-size:0.95rem">
                         <i class="bi bi-check2 me-2"></i>Simpan Log
                     </button>
                 </form>
@@ -425,7 +336,54 @@ $userName = htmlspecialchars((new \Models\User($GLOBALS['app']->db()))->find($_S
     </div>
 </div>
 
+<!-- ===== Modal: klik tanggal kalender -> input durasi menstruasi ===== -->
+<div class="ms-pick-overlay" id="msPickOverlay">
+    <div class="ms-pick-card">
+        <h5 style="font-weight:700;font-size:1rem;margin:0 0 4px">Tandai Mulai Menstruasi</h5>
+        <p style="font-size:0.85rem;color:var(--muted);margin:0 0 1rem" id="msPickDateLabel"></p>
+
+        <form id="msPickForm">
+            <input type="hidden" name="_csrf" value="<?php echo \Helpers\Csrf::token(); ?>">
+            <input type="hidden" name="start_date" id="msPickStartDate">
+            <input type="hidden" name="cycle_length" value="28">
+
+            <div class="mb-3">
+                <label class="form-label">Durasi Menstruasi (hari)</label>
+                <input class="form-control" type="number" name="period_length" id="msPickPeriodLen" min="2" max="10"
+                    value="5" required>
+            </div>
+
+            <div class="d-flex gap-2">
+                <button type="button" class="btn btn-outline-secondary flex-fill" id="msPickCancel">Batal</button>
+                <button type="submit" class="btn btn-primary flex-fill">Simpan</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <style>
+    .ms-pick-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 9998;
+        background: rgba(0, 0, 0, 0.45);
+        display: none;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .ms-pick-overlay.show {
+        display: flex;
+    }
+
+    .ms-pick-card {
+        background: var(--bg, #fff);
+        width: 300px;
+        border-radius: var(--radius);
+        padding: 1.5rem;
+        border: 0.5px solid var(--border2);
+    }
+
     .ms-success-overlay {
         position: fixed;
         inset: 0;
@@ -489,38 +447,17 @@ $userName = htmlspecialchars((new \Models\User($GLOBALS['app']->db()))->find($_S
         font-weight: 700;
         color: #2B2B2B;
     }
-
-    .ms-success-overlay.is-error {
-        background: #FFD4D4;
-    }
-
-    .ms-success-overlay.is-error .ms-success-card {
-        background: #D9362E;
-    }
-
-    .ms-success-overlay.is-error .ms-success-check {
-        background: #FFFFFF;
-    }
-
-    .ms-success-overlay.is-error .ms-success-check i {
-        color: #D9362E;
-    }
-
-    .ms-success-overlay.is-error p.caption {
-        color: #8A1F1A;
-    }
 </style>
 
 <div class="ms-success-overlay" id="msSuccessOverlay">
     <div class="ms-success-card">
-        <h3 id="msSuccessTitle">Menstruasi Successful</h3>
-        <div class="ms-success-check" id="msSuccessIconWrap"><i class="bi bi-check-lg" id="msSuccessIcon"></i></div>
+        <h3>Menstruasi Successful</h3>
+        <div class="ms-success-check"><i class="bi bi-check-lg"></i></div>
     </div>
     <p class="caption" id="msSuccessCaption">Menstruasi Day 1 Successful</p>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 
 <script>
     (function () {
@@ -552,117 +489,167 @@ $userName = htmlspecialchars((new \Models\User($GLOBALS['app']->db()))->find($_S
         }
     })();
 </script>
+
 <script>
-    // AJAX submit for quick log form
+    function msEscapeHtml(s) {
+        if (!s) return '';
+        return String(s).replace(/[&<>"'`]/g, function (m) {
+            return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;', '`': '&#96;' }[m];
+        });
+    }
+
+    function msShowSuccessOverlay(dayNum) {
+        const overlay = document.getElementById('msSuccessOverlay');
+        const caption = document.getElementById('msSuccessCaption');
+        if (!overlay || !caption) return;
+        caption.textContent = 'Menstruasi Day ' + (dayNum || 1) + ' Successful';
+        overlay.classList.add('show');
+        setTimeout(function () { overlay.classList.remove('show'); }, 1800);
+    }
+
     document.addEventListener('DOMContentLoaded', function () {
+
+        /* ============ A. Klik tanggal kalender -> modal durasi menstruasi ============ */
+        const pickOverlay = document.getElementById('msPickOverlay');
+        const pickForm = document.getElementById('msPickForm');
+        const pickDateLabel = document.getElementById('msPickDateLabel');
+        const pickStartDate = document.getElementById('msPickStartDate');
+        const pickCancelBtn = document.getElementById('msPickCancel');
+
+        document.querySelectorAll('.calendar-day').forEach(function (dayEl) {
+            dayEl.addEventListener('click', function () {
+                const dateStr = dayEl.getAttribute('data-date');
+                if (!dateStr) return;
+
+                pickStartDate.value = dateStr;
+
+                const d = new Date(dateStr + 'T00:00:00');
+                pickDateLabel.textContent = d.toLocaleDateString('id-ID', {
+                    weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+                });
+
+                pickOverlay.classList.add('show');
+            });
+        });
+
+        if (pickCancelBtn) {
+            pickCancelBtn.addEventListener('click', function () {
+                pickOverlay.classList.remove('show');
+            });
+        }
+
+        if (pickOverlay) {
+            pickOverlay.addEventListener('click', function (e) {
+                if (e.target === pickOverlay) pickOverlay.classList.remove('show');
+            });
+        }
+
+        if (pickForm) {
+            pickForm.addEventListener('submit', function (e) {
+                e.preventDefault();
+                const data = new FormData(pickForm);
+
+                // Route ini memetakan ke CycleController::store(), yang sekarang
+                // mendukung respons JSON untuk request AJAX.
+                fetch('/cycle/create', {
+                    method: 'POST',
+                    headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+                    body: data
+                })
+                    .then(function (r) { return r.json(); })
+                    .then(function (res) {
+                        pickOverlay.classList.remove('show');
+
+                        if (res && res.status === 'ok') {
+                            msShowSuccessOverlay(res.day_number || 1);
+                            setTimeout(function () { window.location.reload(); }, 1200);
+                        } else {
+                            alert((res && res.message) || 'Gagal menyimpan siklus.');
+                        }
+                    })
+                    .catch(function (err) {
+                        console.error(err);
+                        pickOverlay.classList.remove('show');
+                        alert('Gagal menyimpan. Silakan coba lagi.');
+                    });
+            });
+        }
+
+        /* ============ B. Quick Log Form (AJAX, bug lama diperbaiki) ============ */
         const form = document.querySelector('.quick-log-form');
         if (!form) return;
 
         form.addEventListener('submit', function (e) {
             e.preventDefault();
-
             const data = new FormData(form);
 
             fetch(form.action, {
                 method: 'POST',
                 headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
                 body: data
-            }).then(r => r.json()).then(res => {
-                if (res && res.status === 'ok') {
-                    // show temporary success message
-                    const alert = document.createElement('div');
-                    alert.className = 'alert alert-success';
-                    alert.textContent = res.message || 'Log tersimpan.';
-                    form.prepend(alert);
-                    setTimeout(() => alert.remove(), 2500);
+            })
+                .then(function (r) { return r.json(); })
+                .then(function (res) {
+                    if (res && res.status === 'ok') {
+                        const alertEl = document.createElement('div');
+                        alertEl.className = 'alert alert-success';
+                        alertEl.textContent = res.message || 'Log tersimpan.';
+                        form.prepend(alertEl);
+                        setTimeout(function () { alertEl.remove(); }, 2500);
 
-                    // prepend new log to recent list
-                    const recent = document.getElementById('recentLogs');
-                    if (recent) {
-                        const l = res.log;
-                        const div = document.createElement('div');
-                        div.className = 'log-item';
-                        const moodClass = l.mood === 'Sangat Baik' ? 'good' : (l.mood === 'Buruk' ? 'bad' : '');
-                        let symptomsHtml = '';
-                        if (Array.isArray(l.symptoms) && l.symptoms.length) {
-                            symptomsHtml = '<div class="mt-1">' + l.symptoms.map(s => '<span class="symptom-tag">' + escapeHtml(s) + '</span>').join(' ') + '</div>';
+                        const recent = document.getElementById('recentLogs');
+                        if (recent && res.log) {
+                            const l = res.log;
+                            const div = document.createElement('div');
+                            div.className = 'log-item';
+                            const moodClass = l.mood === 'Sangat Baik' ? 'good' : (l.mood === 'Buruk' ? 'bad' : '');
+                            let symptomsHtml = '';
+                            if (Array.isArray(l.symptoms) && l.symptoms.length) {
+                                symptomsHtml = '<div class="mt-1">' + l.symptoms.map(function (s) {
+                                    return '<span class="symptom-tag">' + msEscapeHtml(s) + '</span>';
+                                }).join(' ') + '</div>';
+                            }
+                            const notesHtml = l.notes
+                                ? '<p style="font-size:0.8rem;color:var(--txt2);margin:6px 0 0;font-style:italic">' + msEscapeHtml(l.notes) + '</p>'
+                                : '';
+
+                            div.innerHTML =
+                                '<div class="d-flex justify-content-between align-items-start mb-1">' +
+                                    '<div class="d-flex align-items-center gap-2">' +
+                                        '<strong style="font-size:0.85rem">' + msEscapeHtml(l.date) + '</strong>' +
+                                        '<span class="mood-badge ' + moodClass + '">' + msEscapeHtml(l.mood) + '</span>' +
+                                    '</div>' +
+                                    '<div style="font-size:0.78rem;color:var(--muted)">Energi: ' +
+                                        '<span style="color:var(--pk);font-weight:600">' + msEscapeHtml(String(l.energy)) + '/5</span>' +
+                                    '</div>' +
+                                '</div>' + symptomsHtml + notesHtml;
+
+                            recent.insertBefore(div, recent.firstChild);
+                            form.reset();
+                            const energyVal = document.getElementById('energyVal');
+                            if (energyVal) energyVal.textContent = '3';
                         }
-                        let notesHtml = l.notes ? '<p style="font-size:0.8rem;color:var(--txt2);margin:6px 0 0;font-style:italic">' + escapeHtml(l.notes) + '</p>' : '';
-                        div.innerHTML = `
-                        <div class="d-flex justify-content-between align-items-start mb-1">
-                            <div class="d-flex align-items-center gap-2">
-                                <strong style="font-size:0.85rem">${escapeHtml(l.date)}</strong>
-                                <span class="mood-badge ${moodClass}">${escapeHtml(l.mood)}</span>
-                            </div>
-                            <div style="font-size:0.78rem;color:var(--muted)">Energi: <span style="color:var(--pk);font-weight:600">${escapeHtml(String(l.energy))}/5</span></div>
-                        </div>
-                        ${symptomsHtml}
-                        ${notesHtml}
-                    `;
-                        recent.insertBefore(div, recent.firstChild);
-                        form.reset();
-                        document.getElementById('energyVal').textContent = '3';
-                    }
 
-                    // Popup sukses
-                    const dayNum = res.day_number || 1;
-                    showMsOverlay({
-                        isError: false,
-                        title: 'Menstruasi Successful',
-                        caption: 'Menstruasi day ' + dayNum + ' sokses',
-                        icon: 'bi-check-lg'
-                    });
-
-                } else {
-                    // Cek apakah ini error karena limit 2x/hari
-                    const msg = (res && res.message) || 'Terjadi kesalahan.';
-                    const isLimitError = msg.toLowerCase().includes('batas') || msg.toLowerCase().includes('2 kali') || msg.toLowerCase().includes('maksimal');
-
-                    if (isLimitError) {
-                        // Popup besar khusus limit harian
-                        showMsOverlay({
-                            isError: true,
-                            title: 'Gagal Menyimpan',
-                            caption: 'Menyimpan log tidak boleh melebihi 2 kali dalam 1 hari',
-                            icon: 'bi-x-lg'
-                        });
+                        if (res.day_number) {
+                            msShowSuccessOverlay(res.day_number);
+                        }
                     } else {
-                        // Error lain tetap pakai alert kecil biasa
+                        const msg = (res && res.message) || 'Terjadi kesalahan.';
                         const alertEl = document.createElement('div');
                         alertEl.className = 'alert alert-danger';
                         alertEl.textContent = msg;
                         form.prepend(alertEl);
-                        setTimeout(() => alertEl.remove(), 3000);
+                        setTimeout(function () { alertEl.remove(); }, 3000);
                     }
-                }
-            }).catch(err => {
-                console.error(err);
-                alert('Gagal menyimpan log. Silakan coba lagi.');
-            });
+                })
+                .catch(function (err) {
+                    console.error(err);
+                    alert('Gagal menyimpan log. Silakan coba lagi.');
+                });
         });
     });
-
-    function showMsOverlay({ isError, title, caption, icon }) {
-        const overlay = document.getElementById('msSuccessOverlay');
-        const titleEl = document.getElementById('msSuccessTitle');
-        const captionEl = document.getElementById('msSuccessCaption');
-        const iconEl = document.getElementById('msSuccessIcon');
-        if (!overlay || !titleEl || !captionEl || !iconEl) return;
-
-        overlay.classList.toggle('is-error', !!isError);
-        titleEl.textContent = title;
-        captionEl.textContent = caption;
-        iconEl.className = 'bi ' + icon;
-
-        overlay.classList.add('show');
-        setTimeout(() => overlay.classList.remove('show'), isError ? 2200 : 1800);
-    }
-
-    function escapeHtml(s) {
-        if (!s) return '';
-        return String(s).replace(/[&<>"'`]/g, function (m) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;', "`": '&#96;' }[m]; });
-    }
 </script>
 
-<?php $content = ob_get_clean();
-require __DIR__ . '/layout.php'; ?>
+<?php
+$content = ob_get_clean();
+require __DIR__ . '/layout.php';

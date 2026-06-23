@@ -61,25 +61,27 @@
 
                             <div class="mb-4">
                                 <label class="form-label">Password</label>
+
                                 <div class="input-group">
                                     <span class="input-group-text"
                                         style="background:var(--pk4);border-color:var(--border2);border-right:none">
                                         <i class="bi bi-lock" style="color:var(--pk)"></i>
                                     </span>
+
                                     <input class="form-control" type="password" name="password" id="registerPassword"
                                         placeholder="Min. 8 karakter" required
-                                        style="border-left:none;padding-left:0;border-right:none">
-                                </div>
-                                <div class="input-group">
+                                        style="border-left:none;border-right:none;box-shadow:none;">
+
                                     <span class="input-group-text"
                                         style="background:var(--pk4);border-color:var(--border2);border-left:none;cursor:pointer"
                                         onclick="togglePassword('registerPassword', this)">
                                         <i class="bi bi-eye" style="color:var(--pk)"></i>
                                     </span>
                                 </div>
+
                                 <div style="font-size:0.72rem;color:var(--muted);margin-top:4px">
-                                    <i class="bi bi-shield-check me-1"></i>Password dienkripsi dan tidak pernah
-                                    dibagikan
+                                    <i class="bi bi-shield-check me-1"></i>
+                                    Password dienkripsi dan tidak pernah dibagikan
                                 </div>
                             </div>
 
