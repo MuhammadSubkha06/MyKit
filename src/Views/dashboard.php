@@ -454,7 +454,7 @@ $userName = htmlspecialchars((new \Models\User($db))->find($_SESSION['user_id'])
         <h3>Menstruasi Successful</h3>
         <div class="ms-success-check"><i class="bi bi-check-lg"></i></div>
     </div>
-    <p class="caption" id="msSuccessCaption">Menstruasi Day 1 Successful</p>
+    <p class="caption" id="msSuccessCaption">Sukses Menyimpan Log!</p>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
